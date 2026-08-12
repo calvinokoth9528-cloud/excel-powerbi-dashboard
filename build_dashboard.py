@@ -829,7 +829,8 @@ document.querySelectorAll("#comb-metric-seg .seg-btn").forEach(b => b.addEventLi
   renderCombined();
 }));
 
-showTab("overview");
+const initialTab = new URLSearchParams(location.search).get("tab");
+showTab(["overview", "financial", "shipments", "combined"].includes(initialTab) ? initialTab : "overview");
 </script>
 </body>
 </html>

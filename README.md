@@ -28,6 +28,7 @@ shipment ledger.** Built during the data-analytics attachment at **KEMRI**.
 
 - [What This Is](#what-this-is)
 - [Live Demo](#live-demo)
+- [Visuals](#visuals)
 - [Preview](#preview)
 - [The Two Datasets](#the-two-datasets)
 - [Dashboard Features](#dashboard-features)
@@ -98,6 +99,27 @@ needed at all):
 ```
 https://htmlpreview.github.io/?https://github.com/calvinokoth9528-cloud/excel-powerbi-dashboard/main/dashboard.html
 ```
+
+## Visuals
+
+Full-page captures of every tab in the dashboard (also available in
+[`docs/screenshots/`](docs/screenshots/)):
+
+<img src="docs/screenshots/overview.png" alt="Overview tab" width="700">
+
+*Overview — report card across both datasets*
+
+<img src="docs/screenshots/financial.png" alt="Power BI Financial tab" width="700">
+
+*Power BI · Financial — KPIs, monthly sales & profit, segment/country/product breakdowns, discount-band margins*
+
+<img src="docs/screenshots/shipments.png" alt="Chocolate Co. Shipments tab" width="700">
+
+*Chocolate Co. · Shipments — monthly sales & boxes, region/geography/category/team breakdowns, top 10 sales people*
+
+<img src="docs/screenshots/combined.png" alt="Combined Report tab" width="700">
+
+*Combined Report — cross-dataset KPIs, trends, top products (toggleable by sales / profit / volume), and a side-by-side dataset summary*
 
 ## The Two Datasets
 
