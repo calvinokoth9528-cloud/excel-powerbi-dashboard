@@ -67,8 +67,8 @@ works fully **offline**, which makes it safe to demo in front of an assessor
 even with no internet in the room.
 
 > 💡 **Presenting on a projector:** open the file, press **F11** for fullscreen,
-> and use the three tabs (Overview · Financial · Shipments) to walk through the
-> results. Hover any chart for exact values.
+> and use the four tabs (Overview · Financial · Shipments · Combined Report) to
+> walk through the results. Hover any chart for exact values.
 
 ## Live Demo
 
@@ -133,26 +133,33 @@ geographies → region, sales people → team), and a **Calendar Table**.
 
 ## Dashboard Features
 
-- **Three views** — an *Overview* report card, the *Power BI Financial* tab,
-  and the *Chocolate Co. Shipments* tab.
+- **Four views** — an *Overview* report card, the *Power BI Financial* tab,
+  the *Chocolate Co. Shipments* tab, and a *Combined Report* that brings both
+  datasets together Power-BI style.
 - **KPI cards** — total sales, profit, margin, units, boxes, and scale numbers
   at a glance.
 - **Interactive year filter** — toggle the financial tab between *All*,
   *2013*, and *2014*; every chart and KPI re-aggregates instantly.
-- **12 charts** — dual-axis monthly sales & profit trends, segment/country/
+- **Combined Report metric toggle** — re-sort the cross-dataset top-products
+  chart by *Sales*, *Profit*, or *Volume*.
+- **22 charts** — dual-axis monthly sales & profit trends, segment/country/
   region doughnuts, product & geography bars, discount-band margin analysis,
-  team performance.
-- **Ranking tables** — top products and top 10 sales people with team and
-  volumes.
+  team performance, cross-dataset product comparison, and an estimated-profit
+  analysis (chocolate sales − boxes × cost per box).
+- **Ranking tables** — top products, top 10 sales people, and a side-by-side
+  "both datasets at a glance" comparison.
 - **Hover tooltips** everywhere, with human-readable $ formatting.
 
 ## Key Insights
 
+- **Combined:** across both datasets — **$152.8M total revenue**, **$37.4M
+  estimated profit** (24.5% combined margin), and **3.2M units/boxes**.
 - **Power BI sample:** *Government* is the largest segment at **$52.5M (44.2%)**
   of sales; *Paseo* is the top product (**$33.0M**); overall margin is **14.2%**.
 - **Shipment ledger:** *Jucies* is the top team (**$9.8M**); *Kelci Walkden* is
   the top sales person (**$1.5M**); *APAC* leads regions (**$17.2M**), with
-  *Bars* the top category (**$17.1M**).
+  *Bars* the top category (**$17.1M**) and an estimated gross profit of
+  **$20.5M (60.3%)** — computed as sales − boxes × cost per box.
 
 ## How to Run
 

@@ -158,6 +158,7 @@ def load_shipments():
             "date": d,
             "sales": float(r[6]),
             "boxes": float(r[7]) if r[7] else 0.0,
+            "cost": prod_cost.get(prod),
         })
     wb.close()
     return recs
@@ -166,6 +167,7 @@ def load_shipments():
 def agg_shipments(recs):
     monthly = {}
     geo, region, cat, team, prod, person = {}, {}, {}, {}, {}, {}
+    est_profit_total = 0.0
     for r in recs:
         d = r["date"]
         y, m = (d.year, d.month) if isinstance(d, (datetime.datetime, datetime.date)) else (0, 0)
@@ -173,6 +175,10 @@ def agg_shipments(recs):
         mm = monthly.setdefault(key, {"sales": 0.0, "boxes": 0.0})
         mm["sales"] += r["sales"]
         mm["boxes"] += r["boxes"]
+
+        # Estimated gross profit = sales - (boxes x cost per box from the dimension table)
+        est_profit = r["sales"] - r["boxes"] * (r["cost"] or 0.0)
+        est_profit_total += est_profit
 
         g = geo.setdefault(r["geo"], {"sales": 0.0, "boxes": 0.0, "region": r["region"]})
         g["sales"] += r["sales"]; g["boxes"] += r["boxes"]
@@ -182,14 +188,14 @@ def agg_shipments(recs):
             rg["sales"] += r["sales"]; rg["boxes"] += r["boxes"]
 
         if r["cat"]:
-            c = cat.setdefault(r["cat"], {"sales": 0.0, "boxes": 0.0})
-            c["sales"] += r["sales"]; c["boxes"] += r["boxes"]
+            c = cat.setdefault(r["cat"], {"sales": 0.0, "boxes": 0.0, "profit": 0.0})
+            c["sales"] += r["sales"]; c["boxes"] += r["boxes"]; c["profit"] += est_profit
 
         t = team.setdefault(r["team"], {"sales": 0.0, "boxes": 0.0})
         t["sales"] += r["sales"]; t["boxes"] += r["boxes"]
 
-        p = prod.setdefault(r["product"], {"sales": 0.0, "boxes": 0.0, "cat": r["cat"]})
-        p["sales"] += r["sales"]; p["boxes"] += r["boxes"]
+        p = prod.setdefault(r["product"], {"sales": 0.0, "boxes": 0.0, "cat": r["cat"], "profit": 0.0})
+        p["sales"] += r["sales"]; p["boxes"] += r["boxes"]; p["profit"] += est_profit
 
         pe = person.setdefault(r["person"], {"sales": 0.0, "boxes": 0.0, "team": r["team"]})
         pe["sales"] += r["sales"]; pe["boxes"] += r["boxes"]
@@ -209,7 +215,7 @@ def agg_shipments(recs):
         monthly_list.append({"label": f"{MONTHS[m - 1]} {y % 100}",
                              "sales": round(v["sales"], 2), "boxes": round(v["boxes"], 1)})
 
-    products = to_list(prod, ("sales", "boxes"))
+    products = to_list(prod, ("sales", "boxes", "profit"))
     for p in products:
         p["cat"] = prod[p["name"]]["cat"]
 
@@ -217,15 +223,19 @@ def agg_shipments(recs):
     for p in top_people:
         p["team"] = person[p["name"]]["team"]
 
+    ts = sum(r["sales"] for r in recs)
+    tb = sum(r["boxes"] for r in recs)
     return {
-        "kpis": {"sales": round(sum(r["sales"] for r in recs), 2),
-                 "boxes": round(sum(r["boxes"] for r in recs), 1),
+        "kpis": {"sales": round(ts, 2),
+                 "boxes": round(tb, 1),
                  "shipments": len(recs),
-                 "products": len(prod), "people": len(person), "geos": len(geo)},
+                 "products": len(prod), "people": len(person), "geos": len(geo),
+                 "estProfit": round(est_profit_total, 2),
+                 "estMargin": round(est_profit_total / ts, 4) if ts else 0},
         "monthly": monthly_list,
         "regions": to_list(region, ("sales", "boxes")),
         "geos": to_list(geo, ("sales", "boxes"))[:8],
-        "categories": to_list(cat, ("sales", "boxes")),
+        "categories": to_list(cat, ("sales", "boxes", "profit")),
         "teams": to_list(team, ("sales", "boxes")),
         "products": products[:10],
         "topPeople": top_people[:10],
@@ -255,6 +265,40 @@ def build_insights(fin_all, ship):
         "topPerson": {"name": person["name"], "value": person["sales"]},
         "topRegion": {"name": region["name"], "value": region["sales"]},
         "topCategory": {"name": cat["name"], "value": cat["sales"]},
+    }
+
+
+def build_combined(fin_all, ship):
+    """Cross-dataset view: combined top products, indexed monthly trend, totals."""
+    products = []
+    for p in fin_all["products"]:
+        products.append({"name": p["name"], "dataset": "Power BI",
+                         "sales": p["sales"], "profit": p["profit"],
+                         "volume": p["units"]})
+    for p in ship["products"]:
+        products.append({"name": p["name"], "dataset": "Chocolate",
+                         "sales": p["sales"], "profit": p["profit"],
+                         "volume": p["boxes"]})
+    products.sort(key=lambda x: x["sales"], reverse=True)
+    products = products[:12]
+
+    fin_sales = fin_all["kpis"]["sales"]
+    choc_sales = ship["kpis"]["sales"]
+    choc_profit = ship["kpis"]["estProfit"]
+    total_sales = fin_sales + choc_sales
+    total_profit = fin_all["kpis"]["profit"] + choc_profit
+    return {
+        "products": products,
+        "totals": {
+            "sales": round(total_sales, 2),
+            "profit": round(total_profit, 2),
+            "margin": round(total_profit / total_sales, 4) if total_sales else 0,
+            "volume": round(fin_all["kpis"]["units"] + ship["kpis"]["boxes"], 1),
+            "finProfit": round(fin_all["kpis"]["profit"], 2),
+            "finMargin": fin_all["kpis"]["margin"],
+            "chocProfit": round(choc_profit, 2),
+            "chocMargin": ship["kpis"]["estMargin"],
+        },
     }
 
 
@@ -388,6 +432,7 @@ TEMPLATE = r"""<!DOCTYPE html>
       <button class="tab-btn active" data-tab="overview">Overview</button>
       <button class="tab-btn" data-tab="financial">Power BI · Financial</button>
       <button class="tab-btn" data-tab="shipments">Chocolate Co. · Shipments</button>
+      <button class="tab-btn" data-tab="combined">Combined Report</button>
     </nav>
   </div>
 </header>
@@ -434,6 +479,26 @@ TEMPLATE = r"""<!DOCTYPE html>
       <div class="card"><h3>Sales by Product Category</h3><div class="chart-wrap" id="wrap-ship-cat"></div></div>
       <div class="card"><h3>Sales by Team</h3><div class="chart-wrap" id="wrap-ship-team"></div></div>
       <div class="card span2"><h3>Top 10 Sales People</h3><div id="ship-top-people"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= COMBINED REPORT ================= -->
+  <section class="tab" id="tab-combined">
+    <div class="seg" id="comb-metric-seg">
+      <button class="seg-btn active" data-metric="sales">Sales</button>
+      <button class="seg-btn" data-metric="profit">Profit</button>
+      <button class="seg-btn" data-metric="volume">Volume</button>
+    </div>
+    <div class="kpi-row" id="comb-kpis"></div>
+    <div class="grid">
+      <div class="card"><h3>Monthly Sales — Power BI Sample (2013–14)</h3><div class="chart-wrap" id="wrap-comb-trend-fin"></div></div>
+      <div class="card"><h3>Monthly Sales — Chocolate Co. (2023–24)</h3><div class="chart-wrap" id="wrap-comb-trend-choc"></div></div>
+      <div class="card"><h3>Revenue by Segment — Power BI Sample</h3><div class="chart-wrap" id="wrap-comb-seg"></div></div>
+      <div class="card"><h3>Revenue by Region — Chocolate Co.</h3><div class="chart-wrap" id="wrap-comb-reg"></div></div>
+      <div class="card span2"><h3>Top 12 Products Across Both Datasets</h3><div class="chart-wrap tall" id="wrap-comb-prod"></div></div>
+      <div class="card"><h3>Profit Margin by Segment — Power BI Sample</h3><div class="chart-wrap" id="wrap-comb-margin"></div></div>
+      <div class="card"><h3>Est. Profit by Category — Chocolate Co.</h3><div class="chart-wrap" id="wrap-comb-cat"></div></div>
+      <div class="card span2"><h3>Both Datasets at a Glance</h3><div id="comb-table"></div></div>
     </div>
   </section>
 </main>
@@ -686,6 +751,61 @@ function renderShipments() {
     "</tbody></table>";
 }
 
+/* ---------- Combined Report ---------- */
+let combMetric = "sales";
+function combRow(label, a, b) {
+  return "<tr><td><b>" + label + "</b></td><td>" + a + "</td><td>" + b + "</td></tr>";
+}
+function renderCombined() {
+  const c = DATA.combined, fin = DATA.financial.all, ship = DATA.shipments;
+  const t = c.totals;
+  document.getElementById("comb-kpis").innerHTML =
+    kpi("Combined Revenue", money(t.sales), "both datasets · 2013–14 & 2023–24", "teal") +
+    kpi("Combined Est. Profit", money(t.profit), "combined margin " + pct(t.margin), "gold") +
+    kpi("Financial Profit", money(t.finProfit), "margin " + pct(t.finMargin)) +
+    kpi("Chocolate Est. Profit", money(t.chocProfit), "margin " + pct(t.chocMargin), "gold") +
+    kpi("Combined Volume", num(t.volume), "units + boxes shipped") +
+    kpi("Data Rows Analysed", F.format(fin.kpis.rows + ship.kpis.shipments), "700 + 6,113");
+
+  makeChart("comb-trend-fin", lineCfg("comb-trend-fin",
+    fin.monthly.map(m => m.label),
+    [{ label: "Sales", data: fin.monthly.map(m => m.sales), color: TEAL }],
+    {}));
+
+  makeChart("comb-trend-choc", lineCfg("comb-trend-choc",
+    ship.monthly.map(m => m.label),
+    [{ label: "Sales", data: ship.monthly.map(m => m.sales), color: GOLD }],
+    {}));
+
+  makeChart("comb-seg", barCfg(fin.segments.map(s => s.name), fin.segments.map(s => s.sales), { horizontal: true }));
+
+  makeChart("comb-reg", doughnutCfg(ship.regions.map(r => r.name), ship.regions.map(r => r.sales)));
+
+  const sorted = [...c.products].sort((a, b) => b[combMetric] - a[combMetric]);
+  makeChart("comb-prod", barCfg(
+    sorted.map(p => p.name),
+    sorted.map(p => p[combMetric]),
+    { horizontal: true, fmt: combMetric === "volume" ? "int" : "money",
+      colors: sorted.map(p => p.dataset === "Power BI" ? TEAL : GOLD) }));
+
+  makeChart("comb-margin", barCfg(fin.segments.map(s => s.name), fin.segments.map(s => s.margin), { fmt: "pct" }));
+
+  makeChart("comb-cat", barCfg(ship.categories.map(x => x.name), ship.categories.map(x => x.profit), { horizontal: true }));
+
+  const topFin = fin.products[0], topChoc = ship.products[0];
+  document.getElementById("comb-table").innerHTML =
+    "<table><thead><tr><th>Metric</th><th>Power BI Sample</th><th>Chocolate Co.</th></tr></thead><tbody>" +
+    combRow("Rows analysed", F.format(fin.kpis.rows), F.format(ship.kpis.shipments)) +
+    combRow("Period", "2013 – 2014", "Feb 2023 – Feb 2024") +
+    combRow("Total sales", money(fin.kpis.sales), money(ship.kpis.sales)) +
+    combRow("Profit / est. profit", money(fin.kpis.profit), money(ship.kpis.estProfit)) +
+    combRow("Margin", pct(fin.kpis.margin), pct(ship.kpis.estMargin)) +
+    combRow("Top product", topFin.name + " · " + money(topFin.sales), topChoc.name + " · " + money(topChoc.sales)) +
+    combRow("Top contributor", "Segment: " + fin.segments[0].name, "Region: " + ship.regions[0].name) +
+    combRow("Scale", fin.products.length + " products · 5 countries", ship.kpis.people + " people · 4 teams") +
+    "</tbody></table>";
+}
+
 /* ---------- tab switching ---------- */
 function showTab(name) {
   document.querySelectorAll(".tab").forEach(s => s.classList.toggle("active", s.id === "tab-" + name));
@@ -693,6 +813,7 @@ function showTab(name) {
   if (name === "overview") renderOverview();
   if (name === "financial") renderFinancial();
   if (name === "shipments") renderShipments();
+  if (name === "combined") renderCombined();
 }
 document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
 
@@ -700,6 +821,12 @@ document.querySelectorAll("#fin-year-seg .seg-btn").forEach(b => b.addEventListe
   finYear = b.dataset.year;
   document.querySelectorAll("#fin-year-seg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
   renderFinancial();
+}));
+
+document.querySelectorAll("#comb-metric-seg .seg-btn").forEach(b => b.addEventListener("click", () => {
+  combMetric = b.dataset.metric;
+  document.querySelectorAll("#comb-metric-seg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
+  renderCombined();
 }));
 
 showTab("overview");
@@ -718,11 +845,13 @@ def main():
     fin_2014 = agg_financial([r for r in load_financial() if r["year"] == 2014])
     ship = agg_shipments(load_shipments())
     insights = build_insights(fin_all, ship)
+    combined = build_combined(fin_all, ship)
 
     data = {
         "financial": {"all": fin_all, "2013": fin_2013, "2014": fin_2014},
         "shipments": ship,
         "insights": insights,
+        "combined": combined,
     }
 
     with open(CHARTJS_FILE, "r", encoding="utf-8") as f:
@@ -739,6 +868,7 @@ def main():
     print(f"dashboard.html written ({os.path.getsize(OUT) / 1024:.0f} KB)")
     print("Financial KPIs :", fin_all["kpis"])
     print("Shipment KPIs  :", ship["kpis"])
+    print("Combined totals:", combined["totals"])
     print("Top segment    :", insights["topSegment"])
     print("Top person     :", insights["topPerson"])
     print("Teams          :", [t["name"] for t in ship["teams"]])
