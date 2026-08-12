@@ -16,6 +16,7 @@ shipment ledger.** Built during the data-analytics attachment at **KEMRI**.
 | Quick links | |
 |---|---|
 | 🖥️ Live dashboard | [`dashboard.html`](dashboard.html) — double-click to open (works offline) |
+| 🌐 Hosted demo | `https://<your-username>.github.io/excel-powerbi-dashboard/dashboard.html` — once Pages is enabled (see [Live Demo](#live-demo)) |
 | ⚙️ Generator | [`build_dashboard.py`](build_dashboard.py) |
 | 🗂️ Data · Power BI sample | [`financial.xlsx`](financial.xlsx) |
 | 🗂️ Data · Shipments | [`ac-sample-data.xlsx`](ac-sample-data.xlsx) |
@@ -26,6 +27,7 @@ shipment ledger.** Built during the data-analytics attachment at **KEMRI**.
 ## Table of Contents
 
 - [What This Is](#what-this-is)
+- [Live Demo](#live-demo)
 - [Preview](#preview)
 - [The Two Datasets](#the-two-datasets)
 - [Dashboard Features](#dashboard-features)
@@ -67,6 +69,35 @@ even with no internet in the room.
 > 💡 **Presenting on a projector:** open the file, press **F11** for fullscreen,
 > and use the three tabs (Overview · Financial · Shipments) to walk through the
 > results. Hover any chart for exact values.
+
+## Live Demo
+
+Once this repository is pushed to GitHub, the dashboard can be hosted for free
+on **GitHub Pages** — no server, no cost:
+
+**Live URL (after enabling Pages):**
+
+```
+https://<your-username>.github.io/excel-powerbi-dashboard/dashboard.html
+```
+
+**Enable it in ~30 seconds:**
+
+1. Push the repo to GitHub (see [How to Publish to GitHub](#how-to-publish-to-github)).
+2. Open the repository on GitHub → **Settings** → **Pages** (left sidebar).
+3. Under *Build and deployment*, set **Source** to **Deploy from a branch**.
+4. Set **Branch** to `main` and folder to **/ (root)** → **Save**.
+5. Wait about a minute — the dashboard is live at the URL above.
+
+> The repo ships with a `.nojekyll` file, so GitHub Pages serves
+> `dashboard.html` exactly as-is (no Jekyll processing).
+
+**Instant alternative** (works as soon as the repo is *public*, no Pages setup
+needed at all):
+
+```
+https://htmlpreview.github.io/?https://github.com/<your-username>/excel-powerbi-dashboard/main/dashboard.html
+```
 
 ## The Two Datasets
 
@@ -141,6 +172,34 @@ python build_dashboard.py        # -> writes dashboard.html
 
 The generator reads both workbooks, joins the dimension table, computes every
 aggregation, and rebuilds the self-contained HTML.
+
+## How to Publish to GitHub
+
+The repository is already initialized and committed locally (branch `main`).
+To put it on GitHub:
+
+**Option 1 — GitHub CLI (fastest):**
+
+```bash
+winget install --id GitHub.cli      # only if you don't have gh yet
+gh auth login
+cd excel-powerbi-dashboard
+gh repo create excel-powerbi-dashboard --public --source . --push
+```
+
+**Option 2 — via the website:**
+
+1. Create an empty repository on github.com named `excel-powerbi-dashboard`
+   (leave "Add a README" unticked).
+2. Then run:
+
+```bash
+cd excel-powerbi-dashboard
+git remote add origin https://github.com/<your-username>/excel-powerbi-dashboard.git
+git push -u origin main
+```
+
+After pushing, follow the [Live Demo](#live-demo) steps to turn on GitHub Pages.
 
 ## How It's Built
 
