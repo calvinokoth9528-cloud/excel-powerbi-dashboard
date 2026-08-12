@@ -16,7 +16,7 @@ shipment ledger.** Built during the data-analytics attachment at **KEMRI**.
 | Quick links | |
 |---|---|
 | 🖥️ Live dashboard | [`dashboard.html`](dashboard.html) — double-click to open (works offline) |
-| 🌐 Hosted demo | `https://<your-username>.github.io/excel-powerbi-dashboard/dashboard.html` — once Pages is enabled (see [Live Demo](#live-demo)) |
+| 🌐 Hosted demo | `https://calvinokoth9528-cloud.github.io/excel-powerbi-dashboard/dashboard.html` — once Pages is enabled (see [Live Demo](#live-demo)) |
 | ⚙️ Generator | [`build_dashboard.py`](build_dashboard.py) |
 | 🗂️ Data · Power BI sample | [`financial.xlsx`](financial.xlsx) |
 | 🗂️ Data · Shipments | [`ac-sample-data.xlsx`](ac-sample-data.xlsx) |
@@ -78,7 +78,7 @@ on **GitHub Pages** — no server, no cost:
 **Live URL (after enabling Pages):**
 
 ```
-https://<your-username>.github.io/excel-powerbi-dashboard/dashboard.html
+https://calvinokoth9528-cloud.github.io/excel-powerbi-dashboard/dashboard.html
 ```
 
 **Enable it in ~30 seconds:**
@@ -96,7 +96,7 @@ https://<your-username>.github.io/excel-powerbi-dashboard/dashboard.html
 needed at all):
 
 ```
-https://htmlpreview.github.io/?https://github.com/<your-username>/excel-powerbi-dashboard/main/dashboard.html
+https://htmlpreview.github.io/?https://github.com/calvinokoth9528-cloud/excel-powerbi-dashboard/main/dashboard.html
 ```
 
 ## The Two Datasets
@@ -195,7 +195,7 @@ gh repo create excel-powerbi-dashboard --public --source . --push
 
 ```bash
 cd excel-powerbi-dashboard
-git remote add origin https://github.com/<your-username>/excel-powerbi-dashboard.git
+git remote add origin https://github.com/calvinokoth9528-cloud/excel-powerbi-dashboard.git
 git push -u origin main
 ```
 
