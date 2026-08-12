@@ -1,0 +1,17 @@
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+
+# chart.umd.min.js is intentionally committed:
+# it is vendored so dashboard.html stays fully offline-capable.
+
+# ===== OS junk =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Editors =====
+.vscode/
+.idea/
+*.swp

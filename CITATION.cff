@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this repository in your portfolio or research, please cite it as:"
+title: "Excel to Power BI Analytics Dashboard: An Interactive HTML Dashboard Built from Excel Data"
+authors:
+  - family-names: Okoth
+    given-names: Calvin
+    affiliation: "Kenya Medical Research Institute (KEMRI)"
+keywords:
+  - Excel
+  - Power BI
+  - data analysis
+  - dashboard
+  - data visualization
+  - Chart.js
+  - openpyxl
+  - business intelligence
+  - attachment portfolio
+date-released: "2026-08-12"
+license: MIT
