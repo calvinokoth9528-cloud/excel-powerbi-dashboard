@@ -3,111 +3,147 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="Interactive Data Analytics Dashboard — Excel to Web">
+<meta property="og:description" content="Power BI-style analytics dashboard built from raw Excel data: 4 tabs, KPI cards with sparklines, donuts with centre totals, country radar, goal rings and year filters. Built with Python, Chart.js and GitHub Pages.">
+<meta property="og:image" content="https://calvinokoth9528-cloud.github.io/excel-powerbi-dashboard/preview.png">
+<meta property="og:url" content="https://calvinokoth9528-cloud.github.io/excel-powerbi-dashboard/dashboard.html">
 <title>Data Analytics Dashboard — Attachment Portfolio</title>
 <style>
   :root {
-    --bg: #0a1428;
-    --panel: #101d36;
-    --panel-2: #142444;
-    --line: #22365c;
-    --text: #e8eefc;
-    --muted: #9fb0cc;
-    --faint: #6b7f9f;
-    --teal: #2dd4bf;
-    --gold: #f5b942;
-    --blue: #60a5fa;
+    --bg: #f3f5fa;
+    --card: #ffffff;
+    --line: #e8ebf3;
+    --text: #1d2537;
+    --muted: #7c869c;
+    --faint: #a8b0c2;
+    --blue: #4c6fff;
+    --blue-soft: #e8edff;
+    --green: #23b26d;
+    --green-soft: #e4f7ee;
+    --orange: #f2994a;
+    --orange-soft: #fdf0e3;
+    --red: #ef5b5b;
+    --red-soft: #fdeaea;
+    --pink: #f472b6;
+    --pink-soft: #fdebf4;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background:
-      radial-gradient(1200px 600px at 85% -10%, rgba(45, 212, 191, 0.10), transparent 60%),
-      radial-gradient(1000px 500px at -10% 110%, rgba(245, 185, 66, 0.08), transparent 60%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
     font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     min-height: 100vh;
   }
   header {
     position: sticky; top: 0; z-index: 20;
-    background: rgba(10, 20, 40, 0.92);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
   }
   .bar {
-    max-width: 1240px; margin: 0 auto; padding: 16px 28px;
+    max-width: 1280px; margin: 0 auto; padding: 14px 28px;
     display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .logo {
-    width: 38px; height: 38px; border-radius: 10px; flex: none;
-    background: linear-gradient(135deg, var(--teal), var(--gold));
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; color: #081222; font-size: 17px;
+    width: 40px; height: 40px; border-radius: 12px; flex: none;
+    background: linear-gradient(135deg, var(--blue), #8b5cf6);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 17px;
+    box-shadow: 0 6px 16px rgba(76, 111, 255, 0.35);
   }
   .brand h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }
   .brand p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
-  nav { display: flex; gap: 6px; background: rgba(255,255,255,0.04); padding: 5px; border-radius: 12px; border: 1px solid var(--line); }
+  nav { display: flex; flex-wrap: wrap; gap: 4px; background: var(--bg); padding: 5px; border-radius: 12px; border: 1px solid var(--line); }
   .tab-btn {
     background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 8px; transition: all .15s;
+    font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 9px; transition: all .15s;
     font-family: inherit;
   }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { background: linear-gradient(135deg, rgba(45,212,191,.16), rgba(245,185,66,.12)); color: var(--teal); box-shadow: inset 0 0 0 1px rgba(45,212,191,.35); }
-  main { max-width: 1240px; margin: 0 auto; padding: 26px 28px 40px; }
+  .tab-btn:hover { color: var(--text); background: #fff; }
+  .tab-btn.active { background: #fff; color: var(--blue); box-shadow: 0 2px 10px rgba(28, 37, 55, 0.10); }
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 40px; }
   .tab { display: none; }
   .tab.active { display: block; }
-  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 16px; margin-bottom: 20px; }
   .kpi {
-    background: linear-gradient(160deg, var(--panel), var(--panel-2));
-    border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; position: relative; overflow: hidden;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 15px 18px 8px;
+    box-shadow: 0 6px 20px rgba(28, 37, 55, 0.05); position: relative; display: flex; flex-direction: column;
   }
-  .kpi::after {
-    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
-    background: linear-gradient(90deg, var(--teal), var(--gold));
+  .kpi-top { display: flex; align-items: center; justify-content: space-between; }
+  .kpi .label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .kpi .icon {
+    width: 34px; height: 34px; border-radius: 10px; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
   }
-  .kpi .label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--faint); font-weight: 600; }
-  .kpi .value { font-size: 26px; font-weight: 700; margin-top: 6px; letter-spacing: -0.5px; }
-  .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  .kpi .value.gold { color: var(--gold); }
-  .kpi .value.teal { color: var(--teal); }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .icon.blue { background: var(--blue-soft); }
+  .icon.green { background: var(--green-soft); }
+  .icon.orange { background: var(--orange-soft); }
+  .icon.pink { background: var(--pink-soft); }
+  .kpi .value { font-size: 26px; font-weight: 700; margin-top: 8px; letter-spacing: -0.6px; }
+  .kpi .delta { font-size: 11.5px; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+  .delta.up { color: var(--green); }
+  .delta.down { color: var(--red); }
+  .delta.flat { color: var(--muted); font-weight: 500; }
+  .kpi .spark { width: 100%; height: 34px; margin-top: 8px; display: block; }
+  .ring-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 15px 18px;
+    box-shadow: 0 6px 20px rgba(28, 37, 55, 0.05); display: flex; flex-direction: column;
+  }
+  .ring-wrap { position: relative; width: 96px; height: 96px; margin: 8px auto 2px; }
+  .ring {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: conic-gradient(var(--blue) calc(var(--p) * 1%), #edf0f7 0);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring::before { content: ""; position: absolute; inset: 11px; background: #fff; border-radius: 50%; }
+  .ring b { position: relative; z-index: 1; font-size: 20px; }
+  .ring-cap { text-align: center; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .span2 { grid-column: span 2; }
   .card {
-    background: linear-gradient(165deg, var(--panel), rgba(16, 29, 54, 0.6));
-    border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px;
+    box-shadow: 0 6px 20px rgba(28, 37, 55, 0.05);
   }
-  .card h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 14px; letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px; }
-  .card h3::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: linear-gradient(135deg, var(--teal), var(--gold)); flex: none; }
+  .card h3 { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 14px; letter-spacing: 0.2px; display: flex; align-items: center; gap: 8px; }
+  .card h3::before { content: ""; width: 8px; height: 8px; border-radius: 3px; background: var(--blue); flex: none; }
   .chart-wrap { position: relative; height: 300px; }
   .chart-wrap.tall { height: 340px; }
   .seg { display: flex; gap: 8px; margin: 0 0 16px; flex-wrap: wrap; }
   .seg-btn {
-    background: rgba(255,255,255,0.05); border: 1px solid var(--line); color: var(--muted);
+    background: #fff; border: 1px solid var(--line); color: var(--muted);
     font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: all .15s; font-family: inherit;
   }
-  .seg-btn:hover { color: var(--text); }
-  .seg-btn.active { background: linear-gradient(135deg, rgba(45,212,191,.18), rgba(245,185,66,.14)); color: var(--teal); border-color: rgba(45,212,191,.4); }
+  .seg-btn:hover { color: var(--text); border-color: #cdd3e2; }
+  .seg-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 4px 12px rgba(76, 111, 255, 0.30); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--faint); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  td { padding: 9px 10px; border-bottom: 1px solid rgba(148,168,205,0.08); color: var(--text); }
+  td { padding: 9px 10px; border-bottom: 1px solid rgba(28, 37, 55, 0.05); color: var(--text); }
   tr:last-child td { border-bottom: none; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .rank { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 7px; background: rgba(255,255,255,0.06); font-size: 11.5px; font-weight: 700; color: var(--muted); }
-  tr.first .rank { background: linear-gradient(135deg, rgba(245,185,66,.25), rgba(245,185,66,.12)); color: var(--gold); }
-  tr.first td:first-child { color: var(--gold); }
+  .rank { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 7px; background: var(--bg); font-size: 11.5px; font-weight: 700; color: var(--muted); }
+  tr.first .rank { background: var(--blue); color: #fff; }
+  tr.first td:first-child { color: var(--blue); }
   .insights { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
   .insight { padding: 16px 18px; }
   .insight .i-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--faint); font-weight: 600; }
-  .insight .i-value { font-size: 21px; font-weight: 700; margin-top: 7px; color: var(--teal); }
+  .insight .i-value { font-size: 21px; font-weight: 700; margin-top: 7px; color: var(--blue); }
   .insight .i-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  footer { max-width: 1240px; margin: 0 auto; padding: 0 28px 34px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+  .goals { display: flex; flex-direction: column; gap: 13px; padding-top: 6px; }
+  .goal .g-top { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 5px; }
+  .goal .g-top b { font-weight: 600; }
+  .goal .g-top span { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .goal .g-bar { height: 8px; border-radius: 999px; background: #edf0f7; overflow: hidden; }
+  .goal .g-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), #8b5cf6); }
+  .goal:nth-child(2n) .g-fill { background: linear-gradient(90deg, var(--green), #4ade80); }
+  .goal:nth-child(3n) .g-fill { background: linear-gradient(90deg, var(--orange), #f6c26b); }
+  footer { max-width: 1280px; margin: 0 auto; padding: 0 28px 34px; color: var(--faint); font-size: 12px; line-height: 1.6; }
   footer b { color: var(--muted); font-weight: 600; }
   @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; }
     .span2 { grid-column: span 1; }
     .bar { padding: 14px 18px; }
-    main { padding: 20px 18px 30px; }
+    main { padding: 18px 18px 28px; }
   }
 </style>
 </head>
@@ -155,10 +191,11 @@
     <div class="grid">
       <div class="card span2"><h3>Monthly Sales &amp; Profit</h3><div class="chart-wrap" id="wrap-fin-month"></div></div>
       <div class="card"><h3>Sales Share by Segment</h3><div class="chart-wrap" id="wrap-fin-seg"></div></div>
+      <div class="card"><h3>Country Performance Profile</h3><div class="chart-wrap" id="wrap-fin-radar"></div></div>
+      <div class="card"><h3>Top 5 Products by Sales</h3><div id="fin-goals" class="goals"></div></div>
       <div class="card"><h3>Sales by Country</h3><div class="chart-wrap" id="wrap-fin-cnt"></div></div>
       <div class="card"><h3>Sales by Product</h3><div class="chart-wrap" id="wrap-fin-prod"></div></div>
       <div class="card"><h3>Discount Bands — Profit Margin &amp; Share</h3><div class="chart-wrap" id="wrap-fin-band"></div></div>
-      <div class="card span2"><h3>Top 5 Products by Sales</h3><div id="fin-top-products"></div></div>
     </div>
   </section>
 
@@ -247,20 +284,43 @@ function num(n) {
 }
 function pct(x) { return (x * 100).toFixed(1) + "%"; }
 
-Chart.defaults.color = "#9fb0cc";
-Chart.defaults.borderColor = "rgba(148, 168, 205, 0.12)";
+Chart.defaults.color = "#7c869c";
+Chart.defaults.borderColor = "rgba(28, 37, 55, 0.08)";
 Chart.defaults.font.family = "'Segoe UI', system-ui, -apple-system, sans-serif";
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.boxWidth = 8;
 Chart.defaults.plugins.legend.labels.padding = 14;
-Chart.defaults.plugins.tooltip.backgroundColor = "rgba(8, 16, 32, 0.95)";
-Chart.defaults.plugins.tooltip.borderColor = "rgba(45, 212, 191, 0.35)";
+Chart.defaults.plugins.tooltip.backgroundColor = "#ffffff";
+Chart.defaults.plugins.tooltip.borderColor = "rgba(28, 37, 55, 0.10)";
 Chart.defaults.plugins.tooltip.borderWidth = 1;
-Chart.defaults.plugins.tooltip.titleColor = "#eef4ff";
-Chart.defaults.plugins.tooltip.bodyColor = "#c6d2e8";
+Chart.defaults.plugins.tooltip.titleColor = "#1d2537";
+Chart.defaults.plugins.tooltip.bodyColor = "#4a5568";
 Chart.defaults.plugins.tooltip.padding = 10;
-Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.cornerRadius = 10;
 Chart.defaults.animation.duration = 550;
+
+/* Draw a big number + label in the middle of a doughnut (Excel dashboard style) */
+const centerText = {
+  id: "centerText",
+  afterDraw(chart) {
+    const cfg = chart.options.plugins && chart.options.plugins.centerText;
+    if (!cfg) return;
+    const { ctx, chartArea } = chart;
+    const cx = (chartArea.left + chartArea.right) / 2;
+    const cy = (chartArea.top + chartArea.bottom) / 2;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#1d2537";
+    ctx.font = "700 22px 'Segoe UI', sans-serif";
+    ctx.fillText(cfg.value, cx, cy - 8);
+    ctx.fillStyle = "#7c869c";
+    ctx.font = "600 9.5px 'Segoe UI', sans-serif";
+    ctx.fillText(String(cfg.label).toUpperCase(), cx, cy + 11);
+    ctx.restore();
+  },
+};
+Chart.register(centerText);
 
 const charts = {};
 function makeChart(id, cfg) {
@@ -312,19 +372,58 @@ function lineCfg(id, labels, datasets, extra) {
   };
 }
 
-function doughnutCfg(labels, values, fmt) {
+function doughnutCfg(labels, values, fmt, center) {
   return {
     type: "doughnut",
     data: {
       labels,
       datasets: [{ data: values, backgroundColor: labels.map((_, i) => PALETTE[i % PALETTE.length]),
-                   borderColor: "#0a1428", borderWidth: 2 }],
+                   borderColor: "#ffffff", borderWidth: 3 }],
     },
     options: {
-      responsive: true, maintainAspectRatio: false, cutout: "62%",
-      plugins: { legend: { position: "bottom" }, tooltip: tooltipFor(fmt || "money") },
+      responsive: true, maintainAspectRatio: false, cutout: "68%",
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: tooltipFor(fmt || "money"),
+        centerText: center || false,
+      },
     },
   };
+}
+
+function radarCfg(labels, datasets) {
+  return {
+    type: "radar",
+    data: {
+      labels,
+      datasets: datasets.map((ds, i) => ({
+        label: ds.label, data: ds.data,
+        backgroundColor: PALETTE[i] + "2e",
+        borderColor: PALETTE[i], borderWidth: 2,
+        pointBackgroundColor: PALETTE[i], pointRadius: 3, pointHoverRadius: 5,
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 100, ticks: { display: false },
+          grid: { color: "rgba(28, 37, 55, 0.08)" },
+          angleLines: { color: "rgba(28, 37, 55, 0.08)" },
+          pointLabels: { color: "#4a5568", font: { size: 11, weight: 600 } },
+        },
+      },
+      plugins: {
+        legend: { position: "top", align: "end" },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.parsed.r.toFixed(1) + "% share" } },
+      },
+    },
+  };
+}
+
+function shareNorm(list, key) {
+  const tot = list.reduce((s, x) => s + x[key], 0) || 1;
+  return list.map(x => +(x[key] / tot * 100).toFixed(1));
 }
 
 function barCfg(labels, values, opts) {
@@ -334,7 +433,7 @@ function barCfg(labels, values, opts) {
   const data = { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 5, borderSkipped: false, maxBarThickness: 34 }] };
   const scales = horizontal
     ? { x: { grid: { display: false }, ...moneyTicks(fmt) }, y: { grid: { display: false } } }
-    : { x: { grid: { display: false } }, y: { grid: { color: "rgba(148,168,205,0.08)" }, ...moneyTicks(fmt) } };
+    : { x: { grid: { display: false } }, y: { grid: { color: "rgba(28,37,55,0.06)" }, ...moneyTicks(fmt) } };
   return {
     type: "bar",
     data,
@@ -354,36 +453,116 @@ function canvas(id) {
   return wrap.querySelector("canvas");
 }
 
-/* ---------- KPI card builder ---------- */
-function kpi(label, value, sub, cls) {
-  return '<div class="kpi"><div class="label">' + label + '</div><div class="value ' + (cls || "") + '">' + value + '</div>' + (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>";
+/* ---------- KPI card builder (Excel dashboard style: icon + delta + sparkline) ---------- */
+const __sparks = [];
+let __sparkSeq = 0;
+
+function kpi(label, value, delta, opt) {
+  opt = opt || {};
+  const d = delta
+    ? '<div class="delta ' + (delta.cls || "flat") + '">' + (delta.arrow || "") + delta.text + "</div>"
+    : "";
+  let spark = "";
+  if (opt.spark && opt.spark.length > 1) {
+    const id = "spark-" + (++__sparkSeq);
+    __sparks.push({ id, data: opt.spark, color: opt.color || "#4c6fff" });
+    spark = '<canvas class="spark" id="' + id + '"></canvas>';
+  }
+  return '<div class="kpi"><div class="kpi-top"><div class="label">' + label + "</div>" +
+    (opt.icon ? '<div class="icon ' + (opt.iconCls || "blue") + '">' + opt.icon + "</div>" : "") + "</div>" +
+    '<div class="value">' + value + "</div>" + d + spark + "</div>";
+}
+
+function sparkline(canvas, data, color) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!w || !h) return;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  if (!data || data.length < 2) return;
+  const min = Math.min(...data), max = Math.max(...data);
+  const pad = 2, span = (max - min) || 1;
+  const pts = data.map((v, i) => [
+    pad + (i / (data.length - 1)) * (w - pad * 2),
+    h - pad - ((v - min) / span) * (h - pad * 2),
+  ]);
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.stroke();
+  ctx.lineTo(pts[pts.length - 1][0], h - 1); ctx.lineTo(pts[0][0], h - 1); ctx.closePath();
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, color + "33"); g.addColorStop(1, color + "00");
+  ctx.fillStyle = g; ctx.fill();
+}
+
+function flushSparks() {
+  __sparks.forEach(s => { const el = document.getElementById(s.id); if (el) sparkline(el, s.data, s.color); });
+  __sparks.length = 0;
+}
+
+function lastDelta(monthly, key) {
+  const a = monthly[monthly.length - 2], b = monthly[monthly.length - 1];
+  if (!a || !b || !a[key]) return null;
+  return (b[key] - a[key]) / a[key];
+}
+
+function deltaHtml(d) {
+  if (d === null || d === undefined) return null;
+  const up = d >= 0;
+  return { text: (up ? "▲ " : "▼ ") + Math.abs(d * 100).toFixed(1) + "% vs prev month", cls: up ? "up" : "down" };
+}
+
+function ringCard(label, percent, value) {
+  return '<div class="ring-card"><div class="label" style="font-size:12px;color:var(--muted);font-weight:600">' + label + '</div>' +
+    '<div class="ring-wrap"><div class="ring" style="--p:' + percent + '"><b>' + value + "</b></div></div>" +
+    '<div class="ring-cap">' + label + " goal</div></div>";
+}
+
+function goalsHtml(items, fmt) {
+  const max = items[0] ? items[0].value : 1;
+  return '<div class="goals">' + items.map(g => {
+    const p = Math.max(2, Math.round(g.value / max * 100));
+    return '<div class="goal"><div class="g-top"><b>' + g.name + "</b><span>" + fmt(g.value) + "</span></div>" +
+      '<div class="g-bar"><div class="g-fill" style="width:' + p + '%"></div></div></div>';
+  }).join("") + "</div>";
 }
 
 /* ---------- Overview ---------- */
 function renderOverview() {
   const fin = DATA.financial.all, ship = DATA.shipments;
   document.getElementById("ov-kpis").innerHTML =
-    kpi("Power BI · Total Sales", money(fin.kpis.sales), "700 rows · 2013–2014", "teal") +
-    kpi("Power BI · Total Profit", money(fin.kpis.profit), "Margin " + pct(fin.kpis.margin), "gold") +
-    kpi("Chocolate Co. · Total Sales", money(ship.kpis.sales), "6,113 shipments · Feb 2023 – Feb 2024", "teal") +
-    kpi("Boxes Shipped", num(ship.kpis.boxes), ship.kpis.products + " products · " + ship.kpis.people + " sales people", "gold");
+    kpi("Total Sales", money(fin.kpis.sales), deltaHtml(lastDelta(fin.monthly, "sales")),
+        { icon: "🏠", iconCls: "blue", spark: fin.monthly.map(m => m.sales), color: BLUE }) +
+    kpi("Total Profit", money(fin.kpis.profit), deltaHtml(lastDelta(fin.monthly, "profit")),
+        { icon: "💰", iconCls: "green", spark: fin.monthly.map(m => m.profit), color: GREEN }) +
+    kpi("Chocolate Sales", money(ship.kpis.sales), deltaHtml(lastDelta(ship.monthly, "sales")),
+        { icon: "📦", iconCls: "orange", spark: ship.monthly.map(m => m.sales), color: ORANGE }) +
+    kpi("Boxes Shipped", num(ship.kpis.boxes), deltaHtml(lastDelta(ship.monthly, "boxes")),
+        { icon: "📊", iconCls: "pink", spark: ship.monthly.map(m => m.boxes), color: PINK }) +
+    ringCard("Margin", Math.round(fin.kpis.margin * 100), pct(fin.kpis.margin));
+  flushSparks();
 
   makeChart("ov-fin", lineCfg("ov-fin",
     fin.monthly.map(m => m.label),
-    [{ label: "Sales", data: fin.monthly.map(m => m.sales), color: TEAL },
-     { label: "Profit", data: fin.monthly.map(m => m.profit), color: GOLD, axis: "y1" }],
+    [{ label: "Sales", data: fin.monthly.map(m => m.sales), color: BLUE },
+     { label: "Profit", data: fin.monthly.map(m => m.profit), color: GREEN, axis: "y1" }],
     { second: true }));
 
-  makeChart("ov-seg", doughnutCfg(fin.segments.map(s => s.name), fin.segments.map(s => s.sales)));
+  makeChart("ov-seg", doughnutCfg(fin.segments.map(s => s.name), fin.segments.map(s => s.sales), "money",
+    { value: money(fin.kpis.sales), label: "Total sales" }));
 
   makeChart("ov-cnt", barCfg(fin.countries.map(c => c.name), fin.countries.map(c => c.sales)));
 
   makeChart("ov-ship", lineCfg("ov-ship",
     ship.monthly.map(m => m.label),
-    [{ label: "Sales", data: ship.monthly.map(m => m.sales), color: TEAL }],
+    [{ label: "Sales", data: ship.monthly.map(m => m.sales), color: BLUE }],
     {}));
 
-  makeChart("ov-reg", doughnutCfg(ship.regions.map(r => r.name), ship.regions.map(r => r.sales)));
+  makeChart("ov-reg", doughnutCfg(ship.regions.map(r => r.name), ship.regions.map(r => r.sales), "money",
+    { value: money(ship.kpis.sales), label: "Total sales" }));
 
   const ins = DATA.insights;
   const share = (v, s) => v + "  <span style='color:#6b7f9f'>· " + pct(s) + " of total</span>";
@@ -406,20 +585,34 @@ function finData() { return DATA.financial[finYear] || DATA.financial.all; }
 function renderFinancial() {
   const d = finData();
   document.getElementById("fin-kpis").innerHTML =
-    kpi("Total Sales", money(d.kpis.sales), d.kpis.rows + " rows · " + (finYear === "all" ? "2013–2014" : finYear), "teal") +
-    kpi("Total Profit", money(d.kpis.profit), "Margin " + pct(d.kpis.margin), "gold") +
-    kpi("Units Sold", num(d.kpis.units), "across all products") +
-    kpi("Profit Margin", pct(d.kpis.margin), "profit ÷ sales", "gold");
+    kpi("Total Sales", money(d.kpis.sales), deltaHtml(lastDelta(d.monthly, "sales")),
+        { icon: "🏠", iconCls: "blue", spark: d.monthly.map(m => m.sales), color: BLUE }) +
+    kpi("Total Profit", money(d.kpis.profit), deltaHtml(lastDelta(d.monthly, "profit")),
+        { icon: "💰", iconCls: "green", spark: d.monthly.map(m => m.profit), color: GREEN }) +
+    kpi("Units Sold", num(d.kpis.units),
+        { text: d.kpis.rows + " rows · " + (finYear === "all" ? "2013–2014" : finYear) },
+        { icon: "📦", iconCls: "orange", spark: d.monthly.map(m => m.units), color: ORANGE }) +
+    ringCard("Margin", Math.round(d.kpis.margin * 100), pct(d.kpis.margin));
+  flushSparks();
 
   makeChart("fin-month", lineCfg("fin-month",
     d.monthly.map(m => m.label),
-    [{ label: "Sales", data: d.monthly.map(m => m.sales), color: TEAL },
-     { label: "Profit", data: d.monthly.map(m => m.profit), color: GOLD, axis: "y1" }],
+    [{ label: "Sales", data: d.monthly.map(m => m.sales), color: BLUE },
+     { label: "Profit", data: d.monthly.map(m => m.profit), color: GREEN, axis: "y1" }],
     { second: true }));
 
-  makeChart("fin-seg", doughnutCfg(d.segments.map(s => s.name), d.segments.map(s => s.sales)));
+  makeChart("fin-seg", doughnutCfg(d.segments.map(s => s.name), d.segments.map(s => s.sales), "money",
+    { value: money(d.kpis.sales), label: "Total sales" }));
 
   makeChart("fin-cnt", barCfg(d.countries.map(c => c.name), d.countries.map(c => c.sales)));
+
+  makeChart("fin-radar", radarCfg(
+    d.countries.map(c => c.name),
+    [
+      { label: "Sales", data: shareNorm(d.countries, "sales") },
+      { label: "Profit", data: shareNorm(d.countries, "profit") },
+      { label: "Units", data: shareNorm(d.countries, "units") },
+    ]));
 
   makeChart("fin-prod", barCfg(d.products.map(p => p.name), d.products.map(p => p.sales), { horizontal: true }));
 
@@ -428,29 +621,32 @@ function renderFinancial() {
     d.bands.map(b => b.margin),
     { fmt: "pct", colors: d.bands.map((_, i) => PALETTE[i % PALETTE.length]) }));
 
-  const top = d.products.slice(0, 5);
-  document.getElementById("fin-top-products").innerHTML =
-    "<table><thead><tr><th>Product</th><th class='num'>Sales</th><th class='num'>Profit</th><th class='num'>Margin</th></tr></thead><tbody>" +
-    top.map((p, i) => "<tr class='" + (i === 0 ? "first" : "") + "'><td><span class='rank'>" + (i + 1) + "</span> " + p.name + "</td><td class='num'>" + money(p.sales) + "</td><td class='num'>" + money(p.profit) + "</td><td class='num'>" + pct(p.margin) + "</td></tr>").join("") +
-    "</tbody></table>";
+  document.getElementById("fin-goals").innerHTML =
+    goalsHtml(d.products.slice(0, 5).map(p => ({ name: p.name, value: p.sales })), money);
 }
 
 /* ---------- Shipments ---------- */
 function renderShipments() {
   const d = DATA.shipments;
   document.getElementById("ship-kpis").innerHTML =
-    kpi("Total Sales", money(d.kpis.sales), d.kpis.shipments + " shipments", "teal") +
-    kpi("Boxes Shipped", num(d.kpis.boxes), "≈ " + Math.round(d.kpis.boxes / d.kpis.shipments) + " boxes / shipment", "gold") +
-    kpi("Products Sold", d.kpis.products, d.kpis.geos + " countries / geographies") +
-    kpi("Sales People", d.kpis.people, "across " + d.teams.length + " teams", "gold");
+    kpi("Total Sales", money(d.kpis.sales), deltaHtml(lastDelta(d.monthly, "sales")),
+        { icon: "📦", iconCls: "blue", spark: d.monthly.map(m => m.sales), color: BLUE }) +
+    kpi("Boxes Shipped", num(d.kpis.boxes), deltaHtml(lastDelta(d.monthly, "boxes")),
+        { icon: "📊", iconCls: "green", spark: d.monthly.map(m => m.boxes), color: GREEN }) +
+    kpi("Products Sold", d.kpis.products, { text: d.kpis.geos + " geographies" },
+        { icon: "🏷️", iconCls: "orange", spark: d.categories.map(c => c.sales), color: ORANGE }) +
+    kpi("Sales People", d.kpis.people, { text: d.teams.length + " teams · " + d.kpis.shipments + " shipments" },
+        { icon: "👥", iconCls: "pink", spark: d.teams.map(t => t.sales), color: PINK });
+  flushSparks();
 
   makeChart("ship-month", lineCfg("ship-month",
     d.monthly.map(m => m.label),
-    [{ label: "Sales", data: d.monthly.map(m => m.sales), color: TEAL },
-     { label: "Boxes", data: d.monthly.map(m => m.boxes), color: GOLD, axis: "y1" }],
+    [{ label: "Sales", data: d.monthly.map(m => m.sales), color: BLUE },
+     { label: "Boxes", data: d.monthly.map(m => m.boxes), color: ORANGE, axis: "y1" }],
     { second: true, fmt2: "int" }));
 
-  makeChart("ship-reg", doughnutCfg(d.regions.map(r => r.name), d.regions.map(r => r.sales)));
+  makeChart("ship-reg", doughnutCfg(d.regions.map(r => r.name), d.regions.map(r => r.sales), "money",
+    { value: money(d.kpis.sales), label: "Total sales" }));
 
   makeChart("ship-geo", barCfg(d.geos.map(g => g.name), d.geos.map(g => g.sales), { horizontal: true }));
 
@@ -473,26 +669,31 @@ function renderCombined() {
   const c = DATA.combined, fin = DATA.financial.all, ship = DATA.shipments;
   const t = c.totals;
   document.getElementById("comb-kpis").innerHTML =
-    kpi("Combined Revenue", money(t.sales), "both datasets · 2013–14 & 2023–24", "teal") +
-    kpi("Combined Est. Profit", money(t.profit), "combined margin " + pct(t.margin), "gold") +
-    kpi("Financial Profit", money(t.finProfit), "margin " + pct(t.finMargin)) +
-    kpi("Chocolate Est. Profit", money(t.chocProfit), "margin " + pct(t.chocMargin), "gold") +
-    kpi("Combined Volume", num(t.volume), "units + boxes shipped") +
-    kpi("Data Rows Analysed", F.format(fin.kpis.rows + ship.kpis.shipments), "700 + 6,113");
+    kpi("Combined Revenue", money(t.sales), deltaHtml(lastDelta(fin.monthly, "sales")),
+        { icon: "🏠", iconCls: "blue", spark: fin.monthly.map(m => m.sales), color: BLUE }) +
+    kpi("Combined Est. Profit", money(t.profit), deltaHtml(lastDelta(fin.monthly, "profit")),
+        { icon: "💰", iconCls: "green", spark: fin.monthly.map(m => m.profit), color: GREEN }) +
+    kpi("Chocolate Est. Profit", money(t.chocProfit), deltaHtml(lastDelta(ship.monthly, "sales")),
+        { icon: "🍫", iconCls: "orange", spark: ship.monthly.map(m => m.sales), color: ORANGE }) +
+    kpi("Combined Volume", num(t.volume), deltaHtml(lastDelta(ship.monthly, "boxes")),
+        { icon: "📦", iconCls: "pink", spark: ship.monthly.map(m => m.boxes), color: PINK }) +
+    ringCard("Margin", Math.round(t.margin * 100), pct(t.margin));
+  flushSparks();
 
   makeChart("comb-trend-fin", lineCfg("comb-trend-fin",
     fin.monthly.map(m => m.label),
-    [{ label: "Sales", data: fin.monthly.map(m => m.sales), color: TEAL }],
+    [{ label: "Sales", data: fin.monthly.map(m => m.sales), color: BLUE }],
     {}));
 
   makeChart("comb-trend-choc", lineCfg("comb-trend-choc",
     ship.monthly.map(m => m.label),
-    [{ label: "Sales", data: ship.monthly.map(m => m.sales), color: GOLD }],
+    [{ label: "Sales", data: ship.monthly.map(m => m.sales), color: ORANGE }],
     {}));
 
   makeChart("comb-seg", barCfg(fin.segments.map(s => s.name), fin.segments.map(s => s.sales), { horizontal: true }));
 
-  makeChart("comb-reg", doughnutCfg(ship.regions.map(r => r.name), ship.regions.map(r => r.sales)));
+  makeChart("comb-reg", doughnutCfg(ship.regions.map(r => r.name), ship.regions.map(r => r.sales), "money",
+    { value: money(ship.kpis.sales), label: "Total sales" }));
 
   const sorted = [...c.products].sort((a, b) => b[combMetric] - a[combMetric]);
   makeChart("comb-prod", barCfg(
